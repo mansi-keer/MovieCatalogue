@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Favorite Movies</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        /* Body & typography */
+        body {
+          background: #121212;
+          color: #eee;
+          font-family: 'Poppins', sans-serif;
+          padding: 2rem;
+          min-height: 100vh;
+          margin: 0;
+        }
+
+        /* Navbar */
+        nav {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+        nav a {
+          color: white;
+          margin: 0 1.5rem;
+          font-weight: 600;
+          text-decoration: none;
+          font-size: 1.1rem;
+          padding: 0.3rem 0;
+          border-bottom: 2px solid transparent;
+          transition: border-color 0.3s ease;
+          letter-spacing: 0.03em;
+        }
+        nav a:hover {
+          border-bottom: 2px solid white;
+        }
+        nav a.active {
+          border-bottom: 2px solid white;
+          font-weight: 700;
+        }
+
+        /* Page Title */
+        h1 {
+          text-align: center;
+          font-weight: 700;
+          margin-bottom: 3rem;
+          color: #28a745;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          font-size: 2.8rem;
+        }
+
+        /* Grid container */
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 2rem;
+          max-width: 1100px;
+          margin: 0 auto;
+          justify-items: center;
+        }
+
+        /* Card style */
+        .card {
+          position: relative;
+          width: 240px;
+          background: #1f1f1f;
+          border-radius: 15px;
+          overflow: hidden;
+          box-shadow: 0 8px 25px #000a;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: default;
+          display: flex;
+          flex-direction: column;
+        }
+        .card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 14px 35px #28a745cc;
+        }
+
+        /* Card image */
+        .card img {
+          width: 100%;
+          height: 350px;
+          object-fit: cover;
+          border-bottom: 3px solid #28a745;
+          transition: transform 0.4s ease;
+        }
+        .card:hover img {
+          transform: scale(1.05);
+        }
+
+        /* Movie title */
+        .card-title {
+          padding: 1rem 1rem 0.5rem;
+          font-weight: 700;
+          font-size: 1.25rem;
+          color: #eee;
+          text-align: center;
+          user-select: none;
+          min-height: 56px;
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* View details button */
+        .details-btn {
+          background: #28a745;
+          color: #121212;
+          text-decoration: none;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          border-radius: 50px;
+          padding: 0.7rem 1.5rem;
+          margin: 1rem auto 1.5rem;
+          width: 140px;
+          text-align: center;
+          box-shadow: 0 0 12px #28a745aa;
+          transition: background 0.3s ease, box-shadow 0.3s ease;
+          display: block;
+        }
+        .details-btn:hover {
+          background: #1e7e34;
+          box-shadow: 0 0 16px #1e7e34cc;
+        }
+
+        /* Remove button (heart icon) */
+        .btn-remove {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: #28a745;
+          border: none;
+          border-radius: 50%;
+          width: 38px;
+          height: 38px;
+          color: #121212;
+          font-size: 1.5rem;
+          cursor: pointer;
+          box-shadow: 0 0 14px #28a745bb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-remove:hover {
+          background: #1e7e34;
+          box-shadow: 0 0 20px #1e7e34cc;
+        }
+
+        /* Empty message */
+        .empty-message {
+          max-width: 400px;
+          margin: 6rem auto;
+          text-align: center;
+          font-size: 1.4rem;
+          color: #bbb;
+        }
+        .empty-message a {
+          color: #28a745;
+          font-weight: 700;
+          text-decoration: none;
+          transition: color 0.3s ease;
+        }
+        .empty-message a:hover {
+          color: #1e7e34;
+          text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" >Home</a>
+    <a href="/favorites" class="active">Favorites</a>
+</nav>
+
+<h1>Your Favorite Movies</h1>
+
+<div th:if="${#lists.isEmpty(favorites)}" class="empty-message">
+    <p>You have no favorite movies yet.</p>
+    <p><a th:href="@{/}">Browse movies to add favorites</a></p>
+</div>
+
+<div class="grid" th:if="${!#lists.isEmpty(favorites)}">
+    <div class="card" th:each="movie : ${favorites}">
+        <img th:src="@{https://image.tmdb.org/t/p/w500/{posterPath}(posterPath=${movie.posterPath})}"
+             th:alt="'Poster of ' + ${movie.title}" />
+        <div class="card-title" th:text="${movie.title}">Movie Title</div>
+        <a th:href="@{/movies/{id}(id=${movie.id})}" class="details-btn">View Details</a>
+        <form th:action="@{/favorites/remove/{id}(id=${movie.id})}" method="post">
+            <button type="submit" class="btn-remove" title="Remove from favorites">
+                <i class="bi bi-heart-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
